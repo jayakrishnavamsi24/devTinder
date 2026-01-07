@@ -1,9 +1,20 @@
 const express = require("express")
 
 const app = express(); 
+const {adminAuth} = require("./middlewares/auth")
 
-app.get("/user", (req, res) => {
-  res.send({ "firstname": "Jaya Krishna Vamsi", "lastname": "Krishnamsetti" });
+// app.use("/admin", adminAuth);
+
+app.get("/admin/getUser", adminAuth, (req, res) => {
+  res.send("Here are user Details")
+})
+
+app.get("/user", (req, res, next) => {
+  // res.send({ "firstname": "Jaya Krishna Vamsi", "lastname": "Krishnamsetti" });
+  next();
+}, (req, res) => {
+  console.log("Hello Vamsi")
+  res.send({firstname: "Jaya Krishna Vamsi"})
 })
 
 app.post("/user", (req, res) => {
@@ -17,6 +28,7 @@ app.put("/user", (req, res) => {
 app.delete("/user", (req, res) => {
   res.send("User deleted successfully")
 })
+
 
 // app.use("/hello", (req, res) => {
 //   res.send("Hello hello hello")

@@ -1,33 +1,55 @@
 const express = require("express")
 
 const app = express(); 
-const {adminAuth} = require("./middlewares/auth")
+const { adminAuth } = require("./middlewares/auth")
 
-// app.use("/admin", adminAuth);
-
-app.get("/admin/getUser", adminAuth, (req, res) => {
-  res.send("Here are user Details")
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    res.send("Some unknown error occurred")
+  }
 })
 
-app.get("/user", (req, res, next) => {
-  // res.send({ "firstname": "Jaya Krishna Vamsi", "lastname": "Krishnamsetti" });
-  next();
-}, (req, res) => {
-  console.log("Hello Vamsi")
-  res.send({firstname: "Jaya Krishna Vamsi"})
+app.get("/getUser", (req, res) => {
+  try {
+    throw new Error("Some unknown Error");
+    res.send("User Details here")
+  } catch (e) {
+    res.status(500).send("Failed fetching data")
+  }
+  
 })
 
-app.post("/user", (req, res) => {
-  res.send("Data successfully save into database")
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    res.send("Some unknown error occurred")
+  }
 })
 
-app.put("/user", (req, res) => {
-  res.send("Data successfully updated in the database")
-})
+// // app.use("/admin", adminAuth);
 
-app.delete("/user", (req, res) => {
-  res.send("User deleted successfully")
-})
+// app.get("/admin/getUser", adminAuth, (req, res) => {
+//   res.send("Here are user Details")
+// })
+
+// app.get("/user", (req, res, next) => {
+//   // res.send({ "firstname": "Jaya Krishna Vamsi", "lastname": "Krishnamsetti" });
+//   next();
+// }, (req, res) => {
+//   console.log("Hello Vamsi")
+//   res.send({firstname: "Jaya Krishna Vamsi"})
+// })
+
+// app.post("/user", (req, res) => {
+//   res.send("Data successfully save into database")
+// })
+
+// app.put("/user", (req, res) => {
+//   res.send("Data successfully updated in the database")
+// })
+
+// app.delete("/user", (req, res) => {
+//   res.send("User deleted successfully")
+// })
 
 
 // app.use("/hello", (req, res) => {

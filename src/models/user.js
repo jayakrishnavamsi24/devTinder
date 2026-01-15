@@ -1,31 +1,54 @@
-const mongoose = require("mongoose"); 
+const mongoose = require("mongoose")
 
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+  {
     firstName: {
-        type: String
+      type: String,
+      required: true,
+      minLength: 4,
+      maxLength: 50,
     },
     lastName: {
-        type: String
+      type: String,
+      maxLength: 50,
     },
     emailId: {
-        type: String 
+      type: String,
+      required: true,
+      unique: true,
     },
     password: {
-        type: String
-    }, 
+      type: String,
+      minLength: 8,
+    },
     age: {
-        type: Number 
+      type: Number,
+      min: 18,
     },
     gender: {
-        type: String 
-    }
-})
+      type: String,
+      validate(value) {
+        if (!["male", "female", "others"].includes(value)) {
+          throw new Error("Gender data is not valid")
+        }
+      },
+    },
+    photoUrl: {
+      type: String,
+    },
+    about: {
+      type: String,
+      default: "This is default about of the user",
+    },
+    skills: {
+      type: [String],
+    },
+  },
+  {
+    timestamps: true,
+  }
+)
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema)
 
-module.exports = User;
-
-
-
-
-
+module.exports = User

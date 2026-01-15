@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const validator = require("validator")
 
 const userSchema = new mongoose.Schema(
   {
@@ -16,6 +17,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Invalid email address ", value)
+        }
+      },
     },
     password: {
       type: String,
@@ -35,6 +41,13 @@ const userSchema = new mongoose.Schema(
     },
     photoUrl: {
       type: String,
+      default:
+        "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-photo-183042379.jpg",
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("Invalid Photo URL: " + value)
+        }
+      },
     },
     about: {
       type: String,

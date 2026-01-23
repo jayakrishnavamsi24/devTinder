@@ -6,6 +6,8 @@ const connectDB = require("./config/database")
 const User = require("./models/user")
 const { validateSignupData } = require("./utils/validation")
 const cookieParser = require("cookie-parser")
+const jwt = require("jsonwebtoken")
+const { userAuth } = require("./middlewares/auth")
 
 app.use(express.json())
 app.use(cookieParser())
@@ -45,9 +47,16 @@ app.post("/login", async (req, res) => {
       throw new Error("Invalid Credentials")
     }
 
-    const isPasswordValid = await bcrypt.compare(password, User.password)
+    const isPasswordValid = await bcrypt.compare(password, user.password)
 
     if (isPasswordValid) {
+      const token = await jwt.sign({ _id: user._id }, "SECRET_KEY", {
+        expiresIn: "7d",
+      })
+
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 168 * 3600000),
+      })
       res.send("login successful")
     } else {
       throw new Error("Invalid Credentials")
@@ -55,6 +64,11 @@ app.post("/login", async (req, res) => {
   } catch (e) {
     res.status(400).send("Error :" + e.message)
   }
+})
+
+app.get("/profile", userAuth, async (req, res) => {
+  const user = req.user
+  res.send(user)
 })
 
 app.get("/user", async (req, res) => {
@@ -89,7 +103,7 @@ app.patch("/user", async (req, res) => {
     const ALLOWED_UPDATES = ["userId", "photoUrl", "about", "gender", "age"]
 
     const isUpdateAllowed = Object.keys(data).every((k) =>
-      ALLOWED_UPDATES.includes(k)
+      ALLOWED_UPDATES.includes(k),
     )
 
     if (!isUpdateAllowed) {

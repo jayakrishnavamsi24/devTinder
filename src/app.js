@@ -1,13 +1,28 @@
 require("dotenv").config()
 const express = require("express")
 const app = express()
+const bcrypt = require("bcrypt")
 const connectDB = require("./config/database")
 const User = require("./models/user")
+const { validateSignupData } = require("./utils/validation")
+const cookieParser = require("cookie-parser")
 
 app.use(express.json())
+app.use(cookieParser())
 
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body)
+  validateSignupData(req)
+
+  const { firstName, lastName, emailId, password } = req.body
+
+  const hashedPassword = await bcrypt.hash(password, 10)
+
+  const user = new User({
+    firstName,
+    lastName,
+    emailId,
+    password: hashedPassword,
+  })
 
   const userArray = await User.find({ emailId: req.body.emailId })
 
@@ -19,6 +34,26 @@ app.post("/signup", async (req, res) => {
     res.send("User Added Successfully")
   } catch (e) {
     res.status(500).send("Unable to add User" + e)
+  }
+})
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body
+    const user = await User.findOne({ emailId: emailId })
+    if (!user) {
+      throw new Error("Invalid Credentials")
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, User.password)
+
+    if (isPasswordValid) {
+      res.send("login successful")
+    } else {
+      throw new Error("Invalid Credentials")
+    }
+  } catch (e) {
+    res.status(400).send("Error :" + e.message)
   }
 })
 
